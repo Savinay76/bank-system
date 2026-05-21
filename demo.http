@@ -1,0 +1,107 @@
+### Bank Account Management System Demo
+### If you use VS Code, install the "REST Client" extension. 
+### You will see a small "Send Request" button above each command below. 
+### Simply click it to run the demo live in your video!
+
+@baseUrl = http://localhost:8080/api
+@accountId = demo-acc-777
+@timestamp = {{$datetime iso8601}}
+
+### 1. Create a New Bank Account
+# Expected: 202 Accepted
+POST {{baseUrl}}/accounts
+Content-Type: application/json
+
+{
+  "accountId": "{{accountId}}",
+  "ownerName": "Alice Smith",
+  "initialBalance": 0,
+  "currency": "USD"
+}
+
+###
+
+### 2. Deposit Money (First Transaction)
+# Expected: 202 Accepted
+POST {{baseUrl}}/accounts/{{accountId}}/deposit
+Content-Type: application/json
+
+{
+  "amount": 500.00,
+  "description": "Salary Deposit",
+  "transactionId": "txn-deposit-1"
+}
+
+###
+
+### 3. Withdraw Money (Second Transaction)
+# Expected: 202 Accepted
+POST {{baseUrl}}/accounts/{{accountId}}/withdraw
+Content-Type: application/json
+
+{
+  "amount": 100.00,
+  "description": "ATM Withdrawal",
+  "transactionId": "txn-withdraw-1"
+}
+
+###
+
+### 4. Overdraft Prevention (Domain Logic validation)
+# Expected: 409 Conflict (amount exceeds balance)
+POST {{baseUrl}}/accounts/{{accountId}}/withdraw
+Content-Type: application/json
+
+{
+  "amount": 1000.00,
+  "description": "Buying a TV",
+  "transactionId": "txn-withdraw-2"
+}
+
+###
+
+### 5. Check Current Account State (CQRS Read side)
+# Expected: 200 OK (Balance should be 400.00)
+GET {{baseUrl}}/accounts/{{accountId}}
+
+###
+
+### 6. View Transaction History (Projection)
+# Expected: 200 OK (Paginated list showing the 500 deposit and 100 withdrawal)
+GET {{baseUrl}}/accounts/{{accountId}}/transactions?page=1&pageSize=10
+
+###
+
+### 7. View Raw Event Stream (Audit Log)
+# Expected: 200 OK (Shows AccountCreated, MoneyDeposited, MoneyWithdrawn events)
+GET {{baseUrl}}/accounts/{{accountId}}/events
+
+###
+
+### 8. Idempotency Test (Duplicate Transaction ID)
+# Expected: 202 Accepted (but balance won't change because the ID is tracked!)
+POST {{baseUrl}}/accounts/{{accountId}}/deposit
+Content-Type: application/json
+
+{
+  "amount": 500.00,
+  "description": "Salary Deposit",
+  "transactionId": "txn-deposit-1"
+}
+
+###
+
+### 9. Check Projection Engine Status
+# Expected: 200 OK (Shows lag: 0)
+GET {{baseUrl}}/projections/status
+
+###
+
+### 10. Close Account (Fails because balance is not 0)
+# Expected: 409 Conflict
+POST {{baseUrl}}/accounts/{{accountId}}/close
+Content-Type: application/json
+
+{
+  "reason": "Moving countries"
+}

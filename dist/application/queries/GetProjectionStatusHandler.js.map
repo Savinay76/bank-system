@@ -1,0 +1,1 @@
+{"version":3,"file":"GetProjectionStatusHandler.js","sourceRoot":"","sources":["../../../src/application/queries/GetProjectionStatusHandler.ts"],"names":[],"mappings":";;;AAOA;;;;;GAKG;AACH,MAAa,+BAA+B;IAC1C,YAA6B,iBAAoC;QAApC,sBAAiB,GAAjB,iBAAiB,CAAmB;IAAG,CAAC;IAErE,KAAK,CAAC,MAAM;QACV,OAAO,IAAI,CAAC,iBAAiB,CAAC,SAAS,EAAE,CAAC;IAC5C,CAAC;CACF;AAND,0EAMC"}
